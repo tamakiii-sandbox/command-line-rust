@@ -1,4 +1,4 @@
-.PHONY: setup teardown build clean
+.PHONY: setup teardown
 
 setup: \
 	vendor \
@@ -7,12 +7,6 @@ setup: \
 
 teardown:
 	rm -rf vendor
-
-build: \
-	hello
-
-clean:
-	rm -rf hello
 
 hello: hello.rs
 	rustc $<

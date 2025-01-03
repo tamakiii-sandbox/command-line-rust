@@ -26,9 +26,11 @@ fn main() {
         .map(|s| s.to_string())
         .collect();
 
-    print!("{}", text.join(" "));
+    let ending = if matches.get_flag("omit_newline") {
+        ""
+    } else {
+        "\n"
+    };
 
-    if !matches.get_flag("omit_newline") {
-        print!("\n");
-    }
+    print!("{}{}", text.join(" "), ending);
 }

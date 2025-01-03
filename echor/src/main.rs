@@ -20,5 +20,6 @@ fn main() {
         )
         .get_matches();
 
-    println!("{:#?}", matches);
+    let text = matches.get_one::<String>("text").unwrap();
+    println!("{}", text);
 }

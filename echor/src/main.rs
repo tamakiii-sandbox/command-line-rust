@@ -1,7 +1,7 @@
 use clap::{Arg, Command};
 
 fn main() {
-    let _matches = Command::new("echor")
+    let matches = Command::new("echor")
         .version("0.1.0")
         .author("Ken Youens-Clark <kyclark@gmail.com>")
         .about("Rust echo")
@@ -19,4 +19,6 @@ fn main() {
                 .num_args(0),
         )
         .get_matches();
+
+    println!("{:#?}", matches);
 }

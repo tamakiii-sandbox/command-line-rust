@@ -20,6 +20,17 @@ fn main() {
         )
         .get_matches();
 
-    let text = matches.get_one::<String>("text").unwrap();
-    println!("{}", text);
+    let text: Vec<_> = matches
+        .get_many::<String>("text")
+        .unwrap()
+        .map(|s| s.to_string())
+        .collect();
+
+    let omit = matches.get_flag("omit_newline");
+
+    if omit {
+        print!("{}", text.join(" "));
+    } else {
+        print!("{}{}", text.join(" "), "\n");
+    }
 }

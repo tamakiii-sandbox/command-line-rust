@@ -7,4 +7,4 @@ clean:
 	rm -rf hello
 
 run:
-	cargo run
+	cargo run --quiet

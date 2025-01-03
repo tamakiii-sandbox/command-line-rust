@@ -1,4 +1,4 @@
-.PHONY: setup
+.PHONY: setup teardown build clean
 
 setup: \
 	vendor \
@@ -7,6 +7,15 @@ setup: \
 
 teardown:
 	rm -rf vendor
+
+build: \
+	hello
+
+clean:
+	rm -rf hello
+
+hello: hello.rs
+	rustc $<
 
 vendor:
 	mkdir -p $@

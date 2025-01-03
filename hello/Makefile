@@ -8,7 +8,7 @@ build: \
 	target/debug/false
 
 clean:
-	rm -rf target
+	cargo clean
 
 run:
 	cargo run --quiet --bin $(BIN)

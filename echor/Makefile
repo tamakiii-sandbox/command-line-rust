@@ -4,7 +4,7 @@ build: \
 	target/debug/main
 
 clean:
-	rm -rf target
+	cargo clean
 
 run:
 	cargo run --quiet

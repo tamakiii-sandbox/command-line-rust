@@ -1,4 +1,5 @@
 use clap::{Arg, Command};
+use std::convert::From;
 use std::error::Error;
 
 type MyResult<T> = Result<T, Box<dyn Error>>;

@@ -10,7 +10,7 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          matrix=$(echo {"include":[{"working-directory":"hello"}]})
+          matrix=$(echo '{"include":[{"working-directory":"hello"}]}')
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   test:

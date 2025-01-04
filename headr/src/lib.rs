@@ -15,6 +15,8 @@ fn parse_positive_int(val: &str) -> MyResult<usize> {
     match val.parse() {
         Ok(i) if i > 0 => Ok(i),
         _ => Err(From::from(val)),
+        // _ => Err(val.into()),
+        // _ => Err(Into::into(val)),
     }
 }
 

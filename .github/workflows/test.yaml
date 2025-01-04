@@ -27,11 +27,8 @@ jobs:
       - run: rustup update --no-self-update stable
       - run: rustup component add --toolchain stable rustfmt rust-src
       - run: rustup default stable
-      # - run: echo "::add-matcher::.github/rust.json"
       - uses: Swatinem/rust-cache@v2
         with:
           key: stable
-      - run: echo ${{ matrix.working-directory }}
-      - run: pwd
-      # - run: cargo build --quiet
-      # - run: cargo test -- --nocapture --quiet
+      - run: cargo build --quiet
+      - run: cargo test -- --nocapture --quiet

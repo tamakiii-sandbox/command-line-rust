@@ -1,4 +1,4 @@
-use clap::Command;
+use clap::{Arg, Command};
 use std::error::Error;
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
@@ -20,11 +20,30 @@ pub fn get_args() -> MyResult<Config> {
         .version("0.1.0")
         .author("Ken Youens-Clark <kyclark@gmail.com>")
         .about("Rust cat")
+        .arg(Arg::new("files").help("files").required(true).num_args(1..))
+        .arg(
+            Arg::new("number_lines")
+                .short('n')
+                .help("Number the output lines, starting at 1.")
+                .num_args(0),
+        )
+        .arg(
+            Arg::new("number_nonblank_lines")
+                .short('b')
+                .help("Number the non-blank output lines, starting at 1.")
+                .num_args(0),
+        )
         .get_matches();
 
+    let files = matches
+        .get_many::<String>("files")
+        .unwrap()
+        .map(|s| s.to_string())
+        .collect();
+
     Ok(Config {
-        files: vec![String::from("-")],
-        number_lines: false,
-        number_nonblank_lines: false,
+        files: files,
+        number_lines: matches.get_flag("number_lines"),
+        number_nonblank_lines: matches.get_flag("number_nonblank_lines"),
     })
 }

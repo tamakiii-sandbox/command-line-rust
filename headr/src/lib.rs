@@ -56,22 +56,24 @@ pub fn get_args() -> MyResult<Config> {
                 .default_value("-"),
         )
         .arg(
-            Arg::new("lines")
-                .short('n')
-                .long("count")
-                .help("Print count lines of each of the specified files.")
-                .num_args(1)
-                .default_value("10")
-                .value_parser(clap::value_parser!(usize))
-                .conflicts_with("bytes"),
-        )
-        .arg(
             Arg::new("bytes")
+                .value_name("BYTES")
                 .short('c')
                 .long("bytes")
                 .help("Print bytes of each of the specified files.")
                 .num_args(1)
                 .value_parser(clap::value_parser!(usize)),
+        )
+        .arg(
+            Arg::new("lines")
+                .value_name("LINES")
+                .short('n')
+                .long("lines")
+                .help("Print count lines of each of the specified files.")
+                .num_args(1)
+                .default_value("10")
+                .value_parser(clap::value_parser!(usize))
+                .conflicts_with("bytes"),
         )
         .get_matches();
 

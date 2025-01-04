@@ -17,19 +17,17 @@ pub fn run(config: Config) -> MyResult<()> {
         match open(&filename) {
             Err(error) => eprintln!("Failed to open {}: {}", filename, error),
             Ok(buffer) => {
-                let mut last_num = 0;
+                let mut minus = 0;
                 for (index, row) in buffer.lines().enumerate() {
                     let line = row?;
+                    let line_control = config.number_lines || config.number_nonblank_lines;
+                    let empty_row = config.number_nonblank_lines && line.is_empty();
 
-                    if config.number_lines {
-                        println!("{:>6}\t{}", index + 1, line);
-                    } else if config.number_nonblank_lines {
-                        if !line.is_empty() {
-                            last_num += 1;
-                            println!("{:>6}\t{}", last_num, line);
-                        } else {
-                            println!();
-                        }
+                    if empty_row {
+                        minus += 1;
+                        println!();
+                    } else if line_control {
+                        println!("{:>6}\t{}", index + 1 - minus, line);
                     } else {
                         println!("{}", line);
                     }

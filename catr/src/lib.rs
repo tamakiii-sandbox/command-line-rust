@@ -20,16 +20,25 @@ pub fn get_args() -> MyResult<Config> {
         .version("0.1.0")
         .author("Ken Youens-Clark <kyclark@gmail.com>")
         .about("Rust cat")
-        .arg(Arg::new("files").help("files").required(true).num_args(1..))
         .arg(
-            Arg::new("number_lines")
-                .short('n')
-                .help("Number the output lines, starting at 1.")
-                .num_args(0),
+            Arg::new("files")
+                .value_name("FILE")
+                .help("Input file(s)")
+                .num_args(0..)
+                .default_value("-"),
         )
         .arg(
-            Arg::new("number_nonblank_lines")
+            Arg::new("number")
+                .short('n')
+                .long("number")
+                .help("Number the output lines, starting at 1.")
+                .num_args(0)
+                .conflicts_with("number_nonblank"),
+        )
+        .arg(
+            Arg::new("number_nonblank")
                 .short('b')
+                .long("number-nonblank")
                 .help("Number the non-blank output lines, starting at 1.")
                 .num_args(0),
         )
@@ -38,12 +47,12 @@ pub fn get_args() -> MyResult<Config> {
     let files = matches
         .get_many::<String>("files")
         .unwrap()
-        .map(|s| s.to_string())
+        .map(ToOwned::to_owned)
         .collect();
 
     Ok(Config {
         files: files,
-        number_lines: matches.get_flag("number_lines"),
-        number_nonblank_lines: matches.get_flag("number_nonblank_lines"),
+        number_lines: matches.get_flag("number"),
+        number_nonblank_lines: matches.get_flag("number_nonblank"),
     })
 }

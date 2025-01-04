@@ -61,7 +61,7 @@ pub fn get_args() -> MyResult<Config> {
                 .long("count")
                 .help("Print count lines of each of the specified files.")
                 .num_args(1)
-                .default_value("0")
+                .default_value("10")
                 .value_parser(clap::value_parser!(usize))
                 .conflicts_with("bytes"),
         )

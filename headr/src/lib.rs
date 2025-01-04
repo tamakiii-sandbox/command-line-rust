@@ -41,10 +41,16 @@ fn test_parse_positive_int() {
 }
 
 pub fn run(config: Config) -> MyResult<()> {
-    for filename in config.files {
+    let num_files = config.files.len();
+
+    for (index, filename) in config.files.iter().enumerate() {
         match open(&filename) {
             Err(error) => eprintln!("{}: {}", filename, error),
             Ok(mut file) => {
+                if num_files > 1 {
+                    println!("{}==> {} <==", if index > 0 { "\n" } else { "" }, filename);
+                }
+
                 if let Some(num_bytes) = config.bytes {
                     let mut handle = file.take(num_bytes as u64);
                     let mut buffer = vec![0; num_bytes];

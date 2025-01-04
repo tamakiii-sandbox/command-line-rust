@@ -3,8 +3,31 @@ on:
   pull_request:
 
 jobs:
-  test:
+  setup:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          matrix=$(echo {"include":[{"working-directory":"hello"}]})
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash --noprofile --norc -eo pipefail {0}
+        working-directory: ${{ matrix.working-directory }}
     steps:
       - uses: actions/checkout@v4
-      - run: which rustup
+      - run: rustup update --no-self-update stable
+      - run: rustup component add --toolchain stable rustfmt rust-src
+      - run: rustup default stable
+      - run: echo "::add-matcher::.github/rust.json"
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: stable
+      - run: cargo build --quiet
+      - run: cargo test -- --nocapture --quiet

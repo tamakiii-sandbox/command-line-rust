@@ -25,7 +25,7 @@ jobs:
       - run: rustup update --no-self-update stable
       - run: rustup component add --toolchain stable rustfmt rust-src
       - run: rustup default stable
-      - run: echo "::add-matcher::.github/rust.json"
+      # - run: echo "::add-matcher::.github/rust.json"
       - uses: Swatinem/rust-cache@v2
         with:
           key: stable

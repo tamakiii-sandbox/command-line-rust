@@ -1,0 +1,35 @@
+name: test
+on:
+  pull_request:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          directories=(hello echor catr headr)
+          matrix=$(printf '%s\n' "${directories[@]}" | jq -Rnc '[inputs | {working_directory: .}] | {include: .}')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: setup
+    strategy:
+      matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash --noprofile --norc -eo pipefail {0}
+        working-directory: ${{ matrix.working_directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update --no-self-update stable
+      - run: rustup component add --toolchain stable rustfmt rust-src
+      - run: rustup default stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: stable
+      - run: cargo build --quiet
+      - run: cargo test -- --nocapture --quiet

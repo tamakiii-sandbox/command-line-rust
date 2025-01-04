@@ -21,7 +21,7 @@ jobs:
     defaults:
       run:
         shell: bash --noprofile --norc -eo pipefail {0}
-        # working-directory: ${{ matrix.working-directory }}
+        working-directory: ${{ matrix.working-directory }}
     steps:
       - uses: actions/checkout@v4
       - run: rustup update --no-self-update stable
@@ -32,5 +32,6 @@ jobs:
         with:
           key: stable
       - run: echo ${{ matrix.working-directory }}
+      - run: pwd
       # - run: cargo build --quiet
       # - run: cargo test -- --nocapture --quiet

@@ -10,6 +10,31 @@ pub struct Config {
     bytes: Option<usize>,
 }
 
+fn parse_positive_int(val: &str) -> MyResult<usize> {
+    match val.parse() {
+        Ok(i) if i > 0 => Ok(i),
+        _ => Err(From::from(val)),
+    }
+}
+
+#[test]
+fn test_parse_positive_int() {
+    // 3は正の整数なのでOK
+    let res = parse_positive_int("3");
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap(), 3);
+
+    // 数字でない文字列の場合はエラー
+    let res = parse_positive_int("foo");
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().to_string(), "foo".to_string());
+
+    // 0の場合もエラー
+    let res = parse_positive_int("0");
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().to_string(), "0".to_string());
+}
+
 pub fn run(config: Config) -> MyResult<()> {
     println!("{:#?}", config);
     Ok(())

@@ -10,7 +10,8 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          matrix=$(echo '{"include":[{"working-directory":"hello"}]}')
+          directories=(hello echor catr headr)
+          matrix=$(printf '%s\n' "${directories[@]}" | jq -Rnc '[inputs | {working_directory: .}] | {include: .}')
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   test:

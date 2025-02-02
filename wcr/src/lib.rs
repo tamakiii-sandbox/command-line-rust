@@ -147,7 +147,7 @@ fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
 //     })
 // }
 
-fn count(mut file: impl BufRead) -> MyResult<FileInfo> {
+fn count<R: BufRead>(mut file: R) -> MyResult<FileInfo> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 

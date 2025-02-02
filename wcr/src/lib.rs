@@ -23,6 +23,11 @@ pub struct FileInfo {
 }
 
 pub fn run(config: Config) -> MyResult<()> {
+    let mut total_lines = 0;
+    let mut total_words = 0;
+    let mut total_bytes = 0;
+    let mut total_chars = 0;
+
     for filename in &config.files {
         match open(filename) {
             Err(error) => eprintln!("{}: {}", filename, error),
@@ -30,12 +35,35 @@ pub fn run(config: Config) -> MyResult<()> {
                 Err(error) => eprintln!("{}: {}", filename, error),
                 Ok(info) => {
                     println!(
-                        "\t{}\t{}\t{}\t{}\t{}",
-                        info.num_lines, info.num_words, info.num_bytes, info.num_chars, filename
+                        "{}{}{}{}{}",
+                        format_field(info.num_lines, config.lines),
+                        format_field(info.num_words, config.words),
+                        format_field(info.num_bytes, config.bytes),
+                        format_field(info.num_chars, config.chars),
+                        if filename == "-" {
+                            "".to_string()
+                        } else {
+                            format!(" {}", filename)
+                        }
                     );
+
+                    total_lines += info.num_lines;
+                    total_words += info.num_words;
+                    total_bytes += info.num_bytes;
+                    total_chars += info.num_chars;
                 }
             },
         }
+    }
+
+    if config.files.len() > 1 {
+        println!(
+            "{}{}{}{} total",
+            format_field(total_lines, config.lines),
+            format_field(total_words, config.words),
+            format_field(total_bytes, config.bytes),
+            format_field(total_chars, config.chars),
+        )
     }
 
     Ok(())
@@ -56,7 +84,7 @@ pub fn get_args() -> MyResult<Config> {
         .arg(
             Arg::new("lines")
                 .value_name("LINES")
-                .short('n')
+                .short('l')
                 .long("lines")
                 .help("The number of lines in each input file is written to the standard output.")
                 .num_args(0)
@@ -76,6 +104,7 @@ pub fn get_args() -> MyResult<Config> {
                 .long("bytes")
                 .help("The number of bytes in each input file is written to the standard output.  This will cancel out any prior usage of the -m option.")
                 .num_args(0)
+                .conflicts_with("chars")
         )
         .arg(
             Arg::new("chars")
@@ -84,6 +113,7 @@ pub fn get_args() -> MyResult<Config> {
                 .long("chars")
                 .help("The number of characters in each input file is written to the standard output.  If the current locale does not support multibyte characters, this is equivalent to the -c option.  This will cancel out any prior usage of the -c option.")
                 .num_args(0)
+                .conflicts_with("bytes")
         )
         .get_matches();
 
@@ -193,9 +223,17 @@ fn count<R: BufRead>(mut file: R) -> MyResult<FileInfo> {
 //     })
 // }
 
+fn format_field(value: usize, show: bool) -> String {
+    if show {
+        format!("{:>8}", value)
+    } else {
+        "".to_string()
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{count, FileInfo};
+    use super::{count, format_field, FileInfo};
     use std::io::Cursor;
 
     #[test]
@@ -211,5 +249,12 @@ mod tests {
         };
 
         assert_eq!(info.unwrap(), expected);
+    }
+
+    #[test]
+    fn test_format_field() {
+        assert_eq!(format_field(1, false), "");
+        assert_eq!(format_field(3, true), "       3");
+        assert_eq!(format_field(10, true), "      10");
     }
 }

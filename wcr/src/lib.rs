@@ -51,13 +51,7 @@ pub fn run(config: Config) -> MyResult<()> {
     }
 
     if config.files.len() > 1 {
-        println!(
-            "{}{}{}{} total",
-            format_field(total.lines, config.lines),
-            format_field(total.words, config.words),
-            format_field(total.bytes, config.bytes),
-            format_field(total.chars, config.chars),
-        )
+        print_total(&total, &config);
     }
 
     Ok(())
@@ -76,6 +70,16 @@ fn print_result(info: &FileInfo, config: &Config, filename: &String) {
             format!(" {}", filename)
         }
     );
+}
+
+fn print_total(total: &Total, config: &Config) {
+    println!(
+        "{}{}{}{} total",
+        format_field(total.lines, config.lines),
+        format_field(total.words, config.words),
+        format_field(total.bytes, config.bytes),
+        format_field(total.chars, config.chars),
+    )
 }
 
 fn add_total(total: &mut Total, info: FileInfo) {

@@ -44,7 +44,7 @@ pub fn run(config: Config) -> MyResult<()> {
                 Err(error) => eprintln!("{}: {}", filename, error),
                 Ok(info) => {
                     print_result(&info, &config, filename);
-                    add_total(&mut total, info);
+                    add_total(&mut total, &info);
                 }
             },
         }
@@ -111,16 +111,27 @@ pub fn get_args() -> MyResult<Config> {
         .map(ToOwned::to_owned)
         .collect();
 
-    let mut lines = matches.get_flag("lines");
-    let mut words = matches.get_flag("words");
-    let mut bytes = matches.get_flag("bytes");
+    let lines = matches.get_flag("lines");
+    let words = matches.get_flag("words");
+    let bytes = matches.get_flag("bytes");
     let chars = matches.get_flag("chars");
 
-    if [lines, words, bytes, chars].iter().all(|v| v == &false) {
-        lines = true;
-        words = true;
-        bytes = true;
-    }
+    let (lines, words, bytes) = if !(lines || words || bytes || chars) {
+        (true, true, true)
+    } else {
+        (lines, words, bytes)
+    };
+
+    // let mut lines = matches.get_flag("lines");
+    // let mut words = matches.get_flag("words");
+    // let mut bytes = matches.get_flag("bytes");
+    // let chars = matches.get_flag("chars");
+
+    // if [lines, words, bytes, chars].iter().all(|v| v == &false) {
+    //     lines = true;
+    //     words = true;
+    //     bytes = true;
+    // }
 
     Ok(Config {
         files,
@@ -132,20 +143,33 @@ pub fn get_args() -> MyResult<Config> {
 }
 
 fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
-    match filename {
-        "-" => Ok(Box::new(BufReader::new(io::stdin()))),
-        _ => Ok(Box::new(BufReader::new(File::open(filename)?))),
-    }
+    // let reader: Box<dyn BufRead> = if filename == "-" {
+    //     Box::new(BufReader::new(io::stdin()))
+    // } else {
+    //     Box::new(BufReader::new(File::open(filename)?))
+    // };
+    // Ok(reader)
+
+    Ok(match filename {
+        "-" => Box::new(BufReader::new(io::stdin())),
+        _ => Box::new(BufReader::new(File::open(filename)?)),
+    })
 }
 
 fn count<R: BufRead>(mut file: R) -> MyResult<FileInfo> {
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
+    let mut num_lines = 0;
+    let mut num_words = 0;
+    let mut num_bytes = 0;
+    let mut num_chars = 0;
+    let mut line = String::new();
 
-    let num_lines = contents.lines().count();
-    let num_words = contents.split_whitespace().count();
-    let num_bytes = contents.len();
-    let num_chars = contents.chars().count();
+    while file.read_line(&mut line)? > 0 {
+        num_lines += 1;
+        num_bytes += line.len();
+        num_words += line.split_whitespace().count();
+        num_chars += line.chars().count();
+        line.clear();
+    }
 
     Ok(FileInfo {
         num_lines,
@@ -153,6 +177,21 @@ fn count<R: BufRead>(mut file: R) -> MyResult<FileInfo> {
         num_bytes,
         num_chars,
     })
+
+    // let mut contents = String::new();
+    // file.read_to_string(&mut contents)?;
+
+    // let num_lines = contents.lines().count();
+    // let num_words = contents.split_whitespace().count();
+    // let num_bytes = contents.len();
+    // let num_chars = contents.chars().count();
+
+    // Ok(FileInfo {
+    //     num_lines,
+    //     num_words,
+    //     num_bytes,
+    //     num_chars,
+    // })
 }
 
 fn format_field(value: usize, show: bool) -> String {
@@ -163,18 +202,20 @@ fn format_field(value: usize, show: bool) -> String {
     }
 }
 
-fn print_result(info: &FileInfo, config: &Config, filename: &String) {
+fn print_result(info: &FileInfo, config: &Config, filename: &str) {
+    let filename_str = if filename == "-" {
+        "".to_string()
+    } else {
+        format!(" {}", filename)
+    };
+
     println!(
         "{}{}{}{}{}",
         format_field(info.num_lines, config.lines),
         format_field(info.num_words, config.words),
         format_field(info.num_bytes, config.bytes),
         format_field(info.num_chars, config.chars),
-        if filename == "-" {
-            "".to_string()
-        } else {
-            format!(" {}", filename)
-        }
+        filename_str
     );
 }
 
@@ -188,7 +229,7 @@ fn print_total(total: &Total, config: &Config) {
     )
 }
 
-fn add_total(total: &mut Total, info: FileInfo) {
+fn add_total(total: &mut Total, info: &FileInfo) {
     total.lines += info.num_lines;
     total.words += info.num_words;
     total.bytes += info.num_bytes;

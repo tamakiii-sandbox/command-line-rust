@@ -55,11 +55,7 @@ pub fn run(config: Config) -> MyResult<()> {
                             format!(" {}", filename)
                         }
                     );
-
-                    total.lines += info.num_lines;
-                    total.words += info.num_words;
-                    total.bytes += info.num_bytes;
-                    total.chars += info.num_chars;
+                    add_total(&mut total, info);
                 }
             },
         }
@@ -76,6 +72,13 @@ pub fn run(config: Config) -> MyResult<()> {
     }
 
     Ok(())
+}
+
+fn add_total(total: &mut Total, info: FileInfo) {
+    total.lines += info.num_lines;
+    total.words += info.num_words;
+    total.bytes += info.num_bytes;
+    total.chars += info.num_chars;
 }
 
 pub fn get_args() -> MyResult<Config> {

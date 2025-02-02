@@ -22,6 +22,7 @@ pub struct FileInfo {
     num_chars: usize,
 }
 
+#[derive(Default)]
 struct Total {
     lines: usize,
     words: usize,
@@ -31,10 +32,7 @@ struct Total {
 
 pub fn run(config: Config) -> MyResult<()> {
     let mut total = Total {
-        lines: 0,
-        words: 0,
-        bytes: 0,
-        chars: 0,
+        ..Default::default()
     };
 
     for filename in &config.files {
@@ -105,11 +103,17 @@ pub fn get_args() -> MyResult<Config> {
         )
         .get_matches();
 
-    let files = matches
+    // let files = matches
+    //     .get_many::<String>("files")
+    //     .unwrap()
+    //     .map(ToOwned::to_owned)
+    //     .collect();
+
+    // if "files" is missing, it returns an empty Vec<String>.
+    let files: Vec<String> = matches
         .get_many::<String>("files")
-        .unwrap()
-        .map(ToOwned::to_owned)
-        .collect();
+        .map(|v| v.map(ToOwned::to_owned).collect())
+        .unwrap_or_default();
 
     let lines = matches.get_flag("lines");
     let words = matches.get_flag("words");
@@ -203,19 +207,16 @@ fn format_field(value: usize, show: bool) -> String {
 }
 
 fn print_result(info: &FileInfo, config: &Config, filename: &str) {
-    let filename_str = if filename == "-" {
-        "".to_string()
-    } else {
-        format!(" {}", filename)
-    };
-
     println!(
         "{}{}{}{}{}",
         format_field(info.num_lines, config.lines),
         format_field(info.num_words, config.words),
         format_field(info.num_bytes, config.bytes),
         format_field(info.num_chars, config.chars),
-        filename_str
+        match filename {
+            "-" => "".to_string(),
+            _ => format!(" {}", filename),
+        }
     );
 }
 
@@ -230,6 +231,12 @@ fn print_total(total: &Total, config: &Config) {
 }
 
 fn add_total(total: &mut Total, info: &FileInfo) {
+    // *total = Total {
+    //     lines: total.lines + info.num_lines,
+    //     words: total.words + info.num_words,
+    //     bytes: total.bytes + info.num_bytes,
+    //     chars: total.chars + info.num_chars,
+    // }
     total.lines += info.num_lines;
     total.words += info.num_words;
     total.bytes += info.num_bytes;

@@ -43,18 +43,7 @@ pub fn run(config: Config) -> MyResult<()> {
             Ok(file) => match count(file) {
                 Err(error) => eprintln!("{}: {}", filename, error),
                 Ok(info) => {
-                    println!(
-                        "{}{}{}{}{}",
-                        format_field(info.num_lines, config.lines),
-                        format_field(info.num_words, config.words),
-                        format_field(info.num_bytes, config.bytes),
-                        format_field(info.num_chars, config.chars),
-                        if filename == "-" {
-                            "".to_string()
-                        } else {
-                            format!(" {}", filename)
-                        }
-                    );
+                    print_result(&info, &config, filename);
                     add_total(&mut total, info);
                 }
             },
@@ -72,6 +61,21 @@ pub fn run(config: Config) -> MyResult<()> {
     }
 
     Ok(())
+}
+
+fn print_result(info: &FileInfo, config: &Config, filename: &String) {
+    println!(
+        "{}{}{}{}{}",
+        format_field(info.num_lines, config.lines),
+        format_field(info.num_words, config.words),
+        format_field(info.num_bytes, config.bytes),
+        format_field(info.num_chars, config.chars),
+        if filename == "-" {
+            "".to_string()
+        } else {
+            format!(" {}", filename)
+        }
+    );
 }
 
 fn add_total(total: &mut Total, info: FileInfo) {

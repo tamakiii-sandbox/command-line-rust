@@ -22,11 +22,20 @@ pub struct FileInfo {
     num_chars: usize,
 }
 
+struct Total {
+    lines: usize,
+    words: usize,
+    bytes: usize,
+    chars: usize,
+}
+
 pub fn run(config: Config) -> MyResult<()> {
-    let mut total_lines = 0;
-    let mut total_words = 0;
-    let mut total_bytes = 0;
-    let mut total_chars = 0;
+    let mut total = Total {
+        lines: 0,
+        words: 0,
+        bytes: 0,
+        chars: 0,
+    };
 
     for filename in &config.files {
         match open(filename) {
@@ -47,10 +56,10 @@ pub fn run(config: Config) -> MyResult<()> {
                         }
                     );
 
-                    total_lines += info.num_lines;
-                    total_words += info.num_words;
-                    total_bytes += info.num_bytes;
-                    total_chars += info.num_chars;
+                    total.lines += info.num_lines;
+                    total.words += info.num_words;
+                    total.bytes += info.num_bytes;
+                    total.chars += info.num_chars;
                 }
             },
         }
@@ -59,10 +68,10 @@ pub fn run(config: Config) -> MyResult<()> {
     if config.files.len() > 1 {
         println!(
             "{}{}{}{} total",
-            format_field(total_lines, config.lines),
-            format_field(total_words, config.words),
-            format_field(total_bytes, config.bytes),
-            format_field(total_chars, config.chars),
+            format_field(total.lines, config.lines),
+            format_field(total.words, config.words),
+            format_field(total.bytes, config.bytes),
+            format_field(total.chars, config.chars),
         )
     }
 

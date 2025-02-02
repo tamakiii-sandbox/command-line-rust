@@ -9,7 +9,7 @@ use std::io::{self, BufRead, BufReader};
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 pub struct FileInfo {
     num_lines: usize,
     num_words: usize,
@@ -65,26 +65,20 @@ fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
 }
 
 fn count<R: BufRead>(mut file: R) -> MyResult<FileInfo> {
-    let mut num_lines = 0;
-    let mut num_words = 0;
-    let mut num_bytes = 0;
-    let mut num_chars = 0;
+    let mut info = FileInfo {
+        ..Default::default()
+    };
     let mut line = String::new();
 
     while file.read_line(&mut line)? > 0 {
-        num_lines += 1;
-        num_bytes += line.len();
-        num_words += line.split_whitespace().count();
-        num_chars += line.chars().count();
+        info.num_lines += 1;
+        info.num_bytes += line.len();
+        info.num_words += line.split_whitespace().count();
+        info.num_chars += line.chars().count();
         line.clear();
     }
 
-    Ok(FileInfo {
-        num_lines,
-        num_words,
-        num_bytes,
-        num_chars,
-    })
+    Ok(info)
 
     // let mut contents = String::new();
     // file.read_to_string(&mut contents)?;
